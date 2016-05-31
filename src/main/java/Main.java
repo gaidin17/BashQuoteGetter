@@ -8,14 +8,15 @@ import org.slf4j.LoggerFactory;
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
     public static void main(String[] args) {
-        logger.info("---------------------------------------------------------------");
         String quoteId = "";
         try {
             quoteId = args[0];
         }
         catch (Exception ex) {
+
             logger.error("No arguments!");
         }
         QuoteGetter quoteGetter = new QuoteGetter(quoteId);
+        quoteGetter.showQuote();
     }
 }

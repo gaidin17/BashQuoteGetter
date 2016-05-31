@@ -11,30 +11,35 @@ import java.net.Socket;
  */
 public class QuoteGetter {
     private final Logger logger = LoggerFactory.getLogger(QuoteGetter.class);
-
+    private String resultQuote;
     private String url = "bash.im";
     private int port = 80;
     private String quoteId;
 
     public QuoteGetter(String quoteId) {
         this.quoteId = quoteId;
-        socketReader(url, port);
+        this.resultQuote = socketReader();
     }
 
-    private void socketReader(String url, int port) {
-        Socket socket = null;
-        String querry = "GET /quote/439521 HTTP/1.1\nHost: bash.im\n\n";
-        ByteArrayOutputStream byteArrayOutputStreamForHeader;
-        ByteArrayOutputStream byteArrayOutputStreamForContent;
-        try {
-            socket = new Socket(url, port);
-            OutputStream os = socket.getOutputStream();
-            os.write(querry.getBytes());
-            os.flush();
+    /**
+     * Method make querry to socket
+     * and get data
+     *
+     * @return resultQuote
+     */
+    private String socketReader() {
+        String resultQuote = "";
+        String querry = "GET /quote/" + quoteId + " HTTP/1.1\nHost:" + url + "\n\n";
 
-            InputStream inputStream = socket.getInputStream();
+        try (Socket socket = new Socket(url, port);
+             OutputStream outputStream = socket.getOutputStream();
+             ByteArrayOutputStream byteArrayOutputStreamForHeader = new ByteArrayOutputStream();
+             ByteArrayOutputStream byteArrayOutputStreamForContent = new ByteArrayOutputStream();
+             InputStream inputStream = socket.getInputStream();) {
 
-            byteArrayOutputStreamForHeader = new ByteArrayOutputStream();
+            outputStream.write(querry.getBytes());
+            outputStream.flush();
+
             int data;
             int count = 0;
             while (true) {
@@ -59,7 +64,7 @@ public class QuoteGetter {
 
             if (getHttpStatus(httpStatus) == 200 && isChunked(arr[4])) {
                 byte buf[] = new byte[64 * 1024];
-                byteArrayOutputStreamForContent = new ByteArrayOutputStream();
+
                 while (true) {
                     data = inputStream.read(buf);
                     if (data == -1) {
@@ -70,26 +75,23 @@ public class QuoteGetter {
                     }
                 }
                 String bashContent = byteArrayOutputStreamForContent.toString(charset);
-                //
-                // System.out.println(bashContent);
-                System.out.println(divByClassParser(bashContent, "<div class=\"text\">"));
+                resultQuote = divByClassParser(bashContent, "<div class=\"text\">");
             } else {
-                System.out.println("Error");
+                resultQuote = "Unable to get data";
             }
 
         } catch (IOException ex) {
-            logger.error("IOException");
-        } finally {
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException ex) {
-                logger.error("Exception when close socket");
-            }
+            logger.error("Error: {}", ex.getMessage());
         }
+        return resultQuote;
     }
 
+    /**
+     * Metod get a charset from contentTypeString:
+     *
+     * @param contentTypeString
+     * @return charset
+     */
     private String getCharSet(String contentTypeString) {
         String result = "";
         String[] contentTypeStringArray = contentTypeString.split(" ");
@@ -103,6 +105,12 @@ public class QuoteGetter {
         return result;
     }
 
+    /**
+     * Metod get a http Status from httpStatusString:
+     *
+     * @param httpStatusString
+     * @return http Status
+     */
     private int getHttpStatus(String httpStatusString) {
         int result = 0;
         String[] httpStatusStringArray = httpStatusString.split(" ");
@@ -110,13 +118,19 @@ public class QuoteGetter {
             try {
                 result = Integer.parseInt(httpStatusStringArray[1]);
             } catch (Exception ex) {
-                logger.error("Error while get http status...not integer");
+                logger.error("Error while get http status...not integer: {}", ex);
             }
         }
         return result;
     }
 
-    private boolean isChunked(String transferEncodingString){
+    /**
+     * Metod check is this http-package chunked or not
+     *
+     * @param transferEncodingString
+     * @return is chunked or not
+     */
+    private boolean isChunked(String transferEncodingString) {
         int indexOfSpace = transferEncodingString.indexOf(" ");
         int indexOfNewLineChar = transferEncodingString.indexOf("\r");
         String result = transferEncodingString.substring(indexOfSpace + 1, indexOfNewLineChar);
@@ -126,14 +140,35 @@ public class QuoteGetter {
             return false;
         }
     }
-    private String divByClassParser(String htmlString, String div){
-        String result = "";
+
+    /**
+     * Metod search a result quote from content
+     *
+     * @param htmlString - html content
+     * @param div        - div tag containing result quote
+     * @return result quote
+     */
+
+    private String divByClassParser(String htmlString, String div) {
+        String result;
         int indexOfFirstDiv = htmlString.indexOf(div);
-        result = htmlString.substring(indexOfFirstDiv + div.length());
+        if (indexOfFirstDiv != -1) {
+            result = htmlString.substring(indexOfFirstDiv + div.length());
+        } else {
+            return "unable to get quote";
+        }
         int indexOfDivClosing = result.indexOf("</div>");
         result = result.substring(0, indexOfDivClosing);
-        result = result.replace("<br>","\n");
-        result = result.replace("&quot;","\"");
+        result = result.replace("<br>", "\n");
+        result = result.replace("&quot;", "\"");
         return result;
     }
+
+    /**
+     * Method show result quote in console
+     */
+    public void showQuote() {
+        System.out.println(resultQuote);
+    }
+
 }
