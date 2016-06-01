@@ -13,7 +13,7 @@ public class Main {
             quoteId = args[0];
         }
         catch (Exception ex) {
-
+            System.out.println("No arguments!");
             logger.error("No arguments!");
         }
         QuoteGetter quoteGetter = new QuoteGetter(quoteId);

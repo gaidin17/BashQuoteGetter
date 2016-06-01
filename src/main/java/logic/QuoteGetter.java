@@ -57,12 +57,14 @@ public class QuoteGetter {
                     byteArrayOutputStreamForHeader.write(data);
                 }
             }
+            byteArrayOutputStreamForHeader.flush();
             String string = byteArrayOutputStreamForHeader.toString();
             String[] arr = string.split("\n");
             String charset = getCharSet(arr[3]);
             String httpStatus = arr[0];
+            String transferEncoding = arr[4];
 
-            if (getHttpStatus(httpStatus) == 200 && isChunked(arr[4])) {
+            if (getHttpStatus(httpStatus) == 200 && isChunked(transferEncoding)) {
                 byte buf[] = new byte[64 * 1024];
 
                 while (true) {
@@ -74,6 +76,7 @@ public class QuoteGetter {
                         byteArrayOutputStreamForContent.write(buf, 0, data);
                     }
                 }
+                byteArrayOutputStreamForContent.flush();
                 String bashContent = byteArrayOutputStreamForContent.toString(charset);
                 resultQuote = divByClassParser(bashContent, "<div class=\"text\">");
             } else {
@@ -106,7 +109,7 @@ public class QuoteGetter {
     }
 
     /**
-     * Metod get a http Status from httpStatusString:
+     * Metod get http Status from httpStatusString:
      *
      * @param httpStatusString
      * @return http Status
