@@ -1,3 +1,4 @@
+import logic.NoDataException;
 import logic.QuoteGetter;
 import logic.SocketReader;
 import org.slf4j.Logger;
@@ -25,8 +26,9 @@ public class Main {
             String quote = quoteGetter.getQuote(htmlContentString, "<div class=\"text\">");
             System.out.println(quote);
         }
-        catch (Exception ex){
-
+        catch (NoDataException ex){
+            logger.error("Error: ", ex);
+            ex.printStackTrace();
         }
     }
 }

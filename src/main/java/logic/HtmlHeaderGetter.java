@@ -8,9 +8,10 @@ import java.util.Map;
  */
 public class HtmlHeaderGetter {
 
-
-
-    public Map<String, String> getHeaderMap(String headerString) {
+    public Map<String, String> getHeaderMap(String headerString) throws NoDataException {
+        if (headerString == null || headerString.length() == 0) {
+            throw new NoDataException();
+        }
         Map<String, String> headerStringMap = new HashMap<>();
         String[] headerStringsArray = headerString.split("\r\n");
         for (String s : headerStringsArray) {
@@ -28,7 +29,10 @@ public class HtmlHeaderGetter {
     }
 
 
-    private String getCharSet(String contentTypeString) {
+    private String getCharSet(String contentTypeString) throws NoDataException {
+        if (contentTypeString == null || contentTypeString.length() == 0){
+            throw new NoDataException();
+        }
         String result = "";
         int indexOfCharsetName = contentTypeString.indexOf("charset=");
         result = contentTypeString.substring(indexOfCharsetName + 8);
@@ -36,7 +40,10 @@ public class HtmlHeaderGetter {
     }
 
 
-    private String getHttpStatus(String httpStatusString) {
+    private String getHttpStatus(String httpStatusString) throws NoDataException {
+        if (httpStatusString == null || httpStatusString.length() == 0){
+            throw new NoDataException();
+        }
         String result = "";
         int indexOfFirstSpace = httpStatusString.indexOf(" ");
         if (indexOfFirstSpace != -1) {
@@ -46,12 +53,18 @@ public class HtmlHeaderGetter {
 
     }
 
-    private String getHtmlHeaderValueString(String headerString) {
+    private String getHtmlHeaderValueString(String headerString) throws NoDataException {
+        if (headerString == null || headerString.length() == 0){
+            throw new NoDataException();
+        }
         int indexOfFirstSpace = headerString.indexOf(" ");
         return headerString.substring(indexOfFirstSpace + 1);
     }
 
-    private String getTransferEncoding(String transferEncodingString) {
+    private String getTransferEncoding(String transferEncodingString) throws NoDataException{
+        if (transferEncodingString == null || transferEncodingString.length() == 0){
+            throw new NoDataException();
+        }
         if (transferEncodingString.equals("chunked")) {
             return "chunked";
         } else {
