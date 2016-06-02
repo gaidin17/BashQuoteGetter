@@ -1,4 +1,5 @@
 import logic.QuoteGetter;
+import logic.SocketReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,16 @@ public class Main {
             System.out.println("No arguments!");
             logger.error("No arguments!");
         }
-        QuoteGetter quoteGetter = new QuoteGetter(quoteId);
-        quoteGetter.showQuote();
+        String querry = "GET /quote/" + quoteId + " HTTP/1.1\nHost:" + "bash.im" + "\n\n";
+        SocketReader socketReader = new SocketReader("bash.im", 80);
+        try {
+            String htmlContentString = socketReader.getHTMLContent(querry);
+            QuoteGetter quoteGetter = new QuoteGetter();
+            String quote = quoteGetter.getQuote(htmlContentString, "<div class=\"text\">");
+            System.out.println(quote);
+        }
+        catch (Exception ex){
+
+        }
     }
 }
