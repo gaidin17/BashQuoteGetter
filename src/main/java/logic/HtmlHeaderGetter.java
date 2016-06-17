@@ -15,13 +15,13 @@ public class HtmlHeaderGetter {
         Map<String, String> headerStringMap = new HashMap<>();
         String[] headerStringsArray = headerString.split("\r\n");
         for (String s : headerStringsArray) {
-            if (s.indexOf(HtmlHeaderKeys.HTTP_STATUS) != -1) {
+            if (s.contains(HtmlHeaderKeys.HTTP_STATUS)) {
                 headerStringMap.put(HtmlHeaderKeys.HTTP_STATUS, getHttpStatus(getHtmlHeaderValueString(s)));
             }
-            if (s.indexOf(HtmlHeaderKeys.CONTENT_TYPE) != -1) {
+            if (s.contains(HtmlHeaderKeys.CONTENT_TYPE)) {
                 headerStringMap.put(HtmlHeaderKeys.CONTENT_TYPE, getCharSet(getHtmlHeaderValueString(s)));
             }
-            if (s.indexOf(HtmlHeaderKeys.TRANSFER_ENCODING) != -1) {
+            if (s.contains(HtmlHeaderKeys.TRANSFER_ENCODING)) {
                 headerStringMap.put(HtmlHeaderKeys.TRANSFER_ENCODING, getTransferEncoding(getHtmlHeaderValueString(s)));
             }
         }
@@ -30,7 +30,7 @@ public class HtmlHeaderGetter {
 
 
     private String getCharSet(String contentTypeString) throws NoDataException {
-        if (contentTypeString == null || contentTypeString.length() == 0){
+        if (contentTypeString == null || contentTypeString.length() == 0) {
             throw new NoDataException();
         }
         String result = "";
@@ -41,7 +41,7 @@ public class HtmlHeaderGetter {
 
 
     private String getHttpStatus(String httpStatusString) throws NoDataException {
-        if (httpStatusString == null || httpStatusString.length() == 0){
+        if (httpStatusString == null || httpStatusString.length() == 0) {
             throw new NoDataException();
         }
         String result = "";
@@ -50,19 +50,18 @@ public class HtmlHeaderGetter {
             result = httpStatusString.substring(0, indexOfFirstSpace);
         }
         return result;
-
     }
 
     private String getHtmlHeaderValueString(String headerString) throws NoDataException {
-        if (headerString == null || headerString.length() == 0){
+        if (headerString == null || headerString.length() == 0) {
             throw new NoDataException();
         }
         int indexOfFirstSpace = headerString.indexOf(" ");
         return headerString.substring(indexOfFirstSpace + 1);
     }
 
-    private String getTransferEncoding(String transferEncodingString) throws NoDataException{
-        if (transferEncodingString == null || transferEncodingString.length() == 0){
+    private String getTransferEncoding(String transferEncodingString) throws NoDataException {
+        if (transferEncodingString == null || transferEncodingString.length() == 0) {
             throw new NoDataException();
         }
         if (transferEncodingString.equals("chunked")) {

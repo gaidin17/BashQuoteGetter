@@ -9,26 +9,23 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         String quoteId = "";
         try {
             quoteId = args[0];
-        }
-        catch (Exception ex) {
-            System.out.println("No arguments!");
+        } catch (Exception ex) {
             logger.error("No arguments!");
         }
-        String querry = "GET /quote/" + quoteId + " HTTP/1.1\nHost:" + "bash.im" + "\n\n";
-        SocketReader socketReader = new SocketReader("bash.im", 80);
+        String link = "/quote/" + quoteId;
+        SocketReader socketReader = new SocketReader();
         try {
-            String htmlContentString = socketReader.getHTMLContent(querry);
+            String htmlContentString = socketReader.getHTMLContent("bash.im", 80, link);
             QuoteGetter quoteGetter = new QuoteGetter();
             String quote = quoteGetter.getQuote(htmlContentString, "<div class=\"text\">");
             System.out.println(quote);
-        }
-        catch (NoDataException ex){
+        } catch (NoDataException ex) {
             logger.error("Error: ", ex);
-            ex.printStackTrace();
         }
     }
 }

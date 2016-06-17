@@ -5,13 +5,13 @@ package logic;
  */
 public class QuoteGetter {
 
-    public String getQuote(String htmlString, String div) {
+    public String getQuote(String htmlString, String div) throws NoDataException {
         String result;
         int indexOfFirstDiv = htmlString.indexOf(div);
         if (indexOfFirstDiv != -1) {
             result = htmlString.substring(indexOfFirstDiv + div.length());
         } else {
-            return "unable to get quote";
+            throw new NoDataException();
         }
         int indexOfDivClosing = result.indexOf("</div>");
         result = result.substring(0, indexOfDivClosing);

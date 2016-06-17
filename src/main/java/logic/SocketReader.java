@@ -11,21 +11,14 @@ import java.util.Map;
  * Created by Evgeny_Akulenko on 5/30/2016.
  */
 public class SocketReader {
-
-    final static int STRING_END_BYTE = 13;
-    final static int NEXT_STRING_BYTE = 10;
+    private final static int STRING_END_BYTE = 13;
+    private final static int NEXT_STRING_BYTE = 10;
     private final Logger logger = LoggerFactory.getLogger(SocketReader.class);
-    private String url;
-    private int port;
 
-    public SocketReader(String url, int port) {
-        this.url = url;
-        this.port = port;
-    }
-
-    public String getHTMLContent(String querry) throws NoDataException {
+    public String getHTMLContent(String domainName, int port, String link) throws NoDataException {
+        String querry = "GET " + link + " HTTP/1.1\nHost:" + domainName + "\n\n";
         String content = "";
-        try (Socket socket = new Socket(url, port);
+        try (Socket socket = new Socket(domainName, port);
              OutputStream outputStream = socket.getOutputStream();
              ByteArrayOutputStream byteArrayOutputStreamForHeader = new ByteArrayOutputStream();
              InputStream inputStream = socket.getInputStream()) {
@@ -48,23 +41,20 @@ public class SocketReader {
                 }
             }
             byteArrayOutputStreamForHeader.flush();
-
             headerString = byteArrayOutputStreamForHeader.toString();
             Map<String, String> headerStringMap = new HtmlHeaderGetter().getHeaderMap(headerString);
-
             String transferEncoding = headerStringMap.get(HtmlHeaderKeys.TRANSFER_ENCODING);
             String charset = headerStringMap.get(HtmlHeaderKeys.CONTENT_TYPE);
             String httpStatus = headerStringMap.get(HtmlHeaderKeys.HTTP_STATUS);
-
 
             if (httpStatus.equals("200") && transferEncoding.equals("chunked")) {
                 content = getHTMLContent(inputStream, charset);
             } else {
                 throw new NoDataException();
             }
-
         } catch (IOException ex) {
             logger.error("Error", ex);
+            throw new NoDataException();
         }
         return content;
     }
@@ -103,6 +93,7 @@ public class SocketReader {
             content = buf.toString();
         } catch (IOException ex) {
             logger.error("Error: ", ex);
+            throw new NoDataException();
         }
         return content;
     }
