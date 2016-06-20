@@ -8,9 +8,9 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/jdbcProjectLogs/logs.log</file>
+        <file>/Logs/BashQuoteGetter/logs.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/jdbcProjectLogs/logs_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>/Logs/BashQuoteGetter/logs_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10KB</maxFileSize>
